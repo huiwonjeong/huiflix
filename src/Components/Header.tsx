@@ -1,6 +1,7 @@
 import styled from "styled-components";
-import { motion } from "framer-motion";
+import { motion, useAnimation } from "framer-motion";
 import { Link, useMatch } from "react-router-dom";
+import { useState } from "react";
 
 const Nav = styled.nav`
   display: flex;
@@ -43,17 +44,35 @@ const Items = styled.ul`
   display: flex;
   align-items: center;
 `;
-const Search = styled.svg`
-  width: 20px;
-  height: 20px;
+const Search = styled.div`
+  color: white;
+  display: flex;
+  align-items: center;
+  position: relative;
   margin-right: 50px;
 `;
-const search = {
-  initial: {
-    d: "M500.3 443.7l-119.7-119.7c27.22-40.41 40.65-90.9 33.46-144.7C401.8 87.79 326.8 13.32 235.2 1.723C99.01-15.51-15.51 99.01 1.724 235.2c11.6 91.64 86.08 166.7 177.6 178.9c53.8 7.189 104.3-6.236 144.7-33.46l119.7 119.7c15.62 15.62 40.95 15.62 56.57 0C515.9 484.7 515.9 459.3 500.3 443.7zM79.1 208c0-70.58 57.42-128 128-128s128 57.42 128 128c0 70.58-57.42 128-128 128S79.1 278.6 79.1 208z",
-    fill: "#fff",
-  },
-};
+const SearchIcon = styled(motion.svg)`
+  width: 20px;
+  height: 20px;
+  z-index: 1;
+  cursor: pointer;
+`;
+const Input = styled(motion.input)`
+  transform-origin: right center;
+  position: absolute;
+  left: -180px;
+  border: 1px solid ${(props) => props.theme.white.lighter};
+  background-color: transparent;
+  height: 30px;
+  width: 240px;
+  padding-left: 40px;
+  color: ${(props) => props.theme.white.lighter};
+  font-size: 14px;
+  &:focus {
+    outline: none !important;
+    border: 1px solid ${(props) => props.theme.red};
+  }
+`;
 
 const Item = styled.li`
   margin-right: 20px;
@@ -62,11 +81,12 @@ const Item = styled.li`
   display: flex;
   justify-content: center;
   flex-direction: column;
+  cursor: pointer;
   &:hover {
     color: ${(props) => props.theme.white.lighter};
   }
 `;
-const Circle = styled.span`
+const Circle = styled(motion.span)`
   position: absolute;
   width: 5px;
   height: 5px;
@@ -79,8 +99,22 @@ const Circle = styled.span`
 `;
 
 function Header() {
+  const [searchOpen, setSearchOpen] = useState(false);
   const homeMatch = useMatch("/");
   const tvMatch = useMatch("/tv");
+  const inputAnimation = useAnimation();
+  const openSearch = () => {
+    // if (searchOpen) {
+    //   inputAnimation.start({
+    //     scaleX: 0,
+    //   });
+    // } else {
+    //   inputAnimation.start({
+    //     scaleX: 1,
+    //   });
+    // } // use animation in code
+    setSearchOpen((prev) => !prev);
+  };
   console.log(homeMatch, tvMatch);
   return (
     <Nav>
@@ -101,17 +135,37 @@ function Header() {
         </Link>
         <Items>
           <Item>
-            <Link to="/">Home {homeMatch && <Circle />}</Link>
+            <Link to="/">Home {homeMatch && <Circle layoutId="circle" />}</Link>
           </Item>
           <Item>
-            <Link to="/tv">Tv Shows {tvMatch && <Circle />}</Link>
+            <Link to="/tv">
+              Tv Shows {tvMatch && <Circle layoutId="circle" />}
+            </Link>
           </Item>
           <Item></Item>
         </Items>
       </Col>
       <Col>
-        <Search xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-          <motion.path variants={search} initial="initial"></motion.path>
+        <Search>
+          <SearchIcon
+            animate={{ x: searchOpen ? -170 : 0 }}
+            transition={{ type: "linear" }}
+            onClick={openSearch}
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 512 512"
+          >
+            <motion.path
+              d="M500.3 443.7l-119.7-119.7c27.22-40.41 40.65-90.9 33.46-144.7C401.8 87.79 326.8 13.32 235.2 1.723C99.01-15.51-15.51 99.01 1.724 235.2c11.6 91.64 86.08 166.7 177.6 178.9c53.8 7.189 104.3-6.236 144.7-33.46l119.7 119.7c15.62 15.62 40.95 15.62 56.57 0C515.9 484.7 515.9 459.3 500.3 443.7zM79.1 208c0-70.58 57.42-128 128-128s128 57.42 128 128c0 70.58-57.42 128-128 128S79.1 278.6 79.1 208z"
+              fill="#fff"
+            ></motion.path>
+          </SearchIcon>
+          <Input
+            animate={inputAnimation}
+            initial={{ scaleX: 0 }}
+            // animate={{ scaleX: searchOpen ? 1 : 0 }}
+            transition={{ type: "linear" }}
+            placeholder="Search for..."
+          />
         </Search>
       </Col>
     </Nav>
