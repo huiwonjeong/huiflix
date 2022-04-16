@@ -1,16 +1,15 @@
 import styled from "styled-components";
-import { motion, useAnimation } from "framer-motion";
+import { motion, useAnimation, useViewportScroll } from "framer-motion";
 import { Link, useMatch } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-const Nav = styled.nav`
+const Nav = styled(motion.nav)`
   display: flex;
   justify-content: space-between;
   align-items: center;
   position: fixed;
   width: 100%;
   top: 0;
-  background-color: black;
   height: 80px;
   font-size: 12px;
 `;
@@ -98,26 +97,35 @@ const Circle = styled(motion.span)`
   background-color: ${(props) => props.theme.red};
 `;
 
+const navVarients = {
+  top: {
+    backgroundColor: "rgba(0,0,0,0)",
+  },
+  scroll: {
+    backgroundColor: "rgba(0,0,0,1)",
+  },
+};
+
 function Header() {
   const [searchOpen, setSearchOpen] = useState(false);
   const homeMatch = useMatch("/");
   const tvMatch = useMatch("/tv");
-  const inputAnimation = useAnimation();
+  const { scrollY } = useViewportScroll();
+  const navAnimation = useAnimation();
   const openSearch = () => {
-    // if (searchOpen) {
-    //   inputAnimation.start({
-    //     scaleX: 0,
-    //   });
-    // } else {
-    //   inputAnimation.start({
-    //     scaleX: 1,
-    //   });
-    // } // use animation in code
     setSearchOpen((prev) => !prev);
   };
-  console.log(homeMatch, tvMatch);
+  useEffect(() => {
+    scrollY.onChange(() => {
+      if (scrollY.get() < 80) {
+        navAnimation.start("top");
+      } else {
+        navAnimation.start("scroll");
+      }
+    });
+  }, [scrollY]);
   return (
-    <Nav>
+    <Nav variants={navVarients} animate={navAnimation} initial={"top"}>
       <Col>
         <Link to="/">
           <Logo
@@ -160,9 +168,9 @@ function Header() {
             ></motion.path>
           </SearchIcon>
           <Input
-            animate={inputAnimation}
+            // animate={inputAnimation}
             initial={{ scaleX: 0 }}
-            // animate={{ scaleX: searchOpen ? 1 : 0 }}
+            animate={{ scaleX: searchOpen ? 1 : 0 }}
             transition={{ type: "linear" }}
             placeholder="Search for..."
           />
