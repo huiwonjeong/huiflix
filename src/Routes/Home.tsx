@@ -1,10 +1,18 @@
 import { useQuery } from "react-query";
 import styled from "styled-components";
-import { getMovies, IGetMoviesResult } from "../api";
+import {
+  getMovies,
+  getPopularMovies,
+  getTopRatedMovies,
+  IGetMoviesResult,
+} from "../api";
 import { makeImagePath } from "../utils";
-import { motion, AnimatePresence } from "framer-motion";
-import { useState } from "react";
-import useWindowDimensions from "../useWindowDimensions";
+import { useMatch, useNavigate } from "react-router-dom";
+import MovieSlider from "../Components/MovieSlider";
+import MovieDetail from "../Components/MovieDetail";
+import { AnimatePresence, motion } from "framer-motion";
+import { useRecoilState, useRecoilValue } from "recoil";
+import { ISelectedMovieProp, selectedMovie } from "../atom";
 
 const Wrapper = styled.div`
   background-color: black;
@@ -31,88 +39,80 @@ const Title = styled.h2`
   margin-bottom: 20px;
 `;
 
+const Overlay = styled(motion.div)`
+  position: fixed;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  background-color: rgba(0, 0, 0, 0.5);
+  opacity: 0;
+`;
+
 const Overview = styled.p`
   font-size: 20px;
   width: 50%;
 `;
 
-const Slider = styled.div`
-  position: relative;
-  top: -100px;
+const SliderWrapper = styled.div`
+  height: 400px;
 `;
-
-const Row = styled(motion.div)`
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 5px;
-  margin-bottom: 10px;
-  position: absolute;
-  width: 100%;
-`;
-
-const Box = styled(motion.div)<{ bgPhoto: string }>`
-  background-color: white;
-  height: 200px;
-  background-image: url(${(props) => props.bgPhoto});
-  background-size: cover;
-  background-position: center center;
-`;
-
-const offset = 6;
 
 function Home() {
-  const { data, isLoading } = useQuery<IGetMoviesResult>(
-    ["movies", "nowPlaying"],
-    getMovies
-  );
-  const [index, setIndex] = useState(0);
-  const increaseIndex = () => {
-    if (data) {
-      if (leaving) return;
-      setLeaving(true);
-      const totalMovies = data.results.length - 1;
-      const maxIndex = Math.floor(totalMovies / offset) - 1;
-      setIndex((prev) => (prev === maxIndex ? 0 : prev + 1));
-    }
+  const movieDetailMatch = useMatch("/movies/:movieId");
+
+  const { data: nowPlaying, isLoading: nowPlayingLoading } =
+    useQuery<IGetMoviesResult>(["movies", "nowPlaying"], getMovies);
+  const { data: popular, isLoading: popularLoading } =
+    useQuery<IGetMoviesResult>(["movies", "popular"], getPopularMovies);
+  const { data: topRated, isLoading: topRatedLoading } =
+    useQuery<IGetMoviesResult>(["movies", "topRated"], getTopRatedMovies);
+  const [movieInfo, setMovie] = useRecoilState(selectedMovie);
+
+  const navigate = useNavigate();
+  const onOverlayClick = () => {
+    navigate("/");
+    setMovie({ title: "", movieId: 0 });
   };
-  const toggleLeaving = () => setLeaving((prev) => !prev);
-  const [leaving, setLeaving] = useState(false);
-  const width = useWindowDimensions();
 
   return (
     <Wrapper>
-      {isLoading ? (
+      {nowPlayingLoading && popularLoading ? (
         <Loader>Loading...</Loader>
       ) : (
         <>
           <Banner
-            onClick={increaseIndex}
-            bgPhoto={makeImagePath(data?.results[0].backdrop_path || "")}
+            bgPhoto={makeImagePath(nowPlaying?.results[0].backdrop_path || "")}
           >
-            <Title>{data?.results[0].title}</Title>
-            <Overview>{data?.results[0].overview}</Overview>
+            <Title>{nowPlaying?.results[0].title}</Title>
+            <Overview>{nowPlaying?.results[0].overview}</Overview>
           </Banner>
-          <Slider>
-            <AnimatePresence initial={false} onExitComplete={toggleLeaving}>
-              <Row
-                initial={{ x: width - 10 }}
-                animate={{ x: 0 }}
-                exit={{ x: -width + 10 }}
-                transition={{ type: "tween", duration: 1 }}
-                key={index}
-              >
-                {data?.results
-                  .slice(1)
-                  .slice(offset * index, offset * index + offset)
-                  .map((movie) => (
-                    <Box
-                      key={movie.id}
-                      bgPhoto={makeImagePath(movie.backdrop_path, "w500")}
-                    />
-                  ))}
-              </Row>
+          <SliderWrapper>
+            {nowPlaying ? (
+              <MovieSlider title="Now Playing" data={nowPlaying} />
+            ) : null}
+          </SliderWrapper>
+          <SliderWrapper>
+            {topRated ? (
+              <MovieSlider title="Top Rated" data={topRated} />
+            ) : null}
+          </SliderWrapper>
+          <SliderWrapper>
+            {popular ? <MovieSlider title="Popular" data={popular} /> : null}
+          </SliderWrapper>
+          {movieDetailMatch ? (
+            <AnimatePresence>
+              <Overlay
+                exit={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ type: "tween", duration: 0.5 }}
+                onClick={onOverlayClick}
+              />
             </AnimatePresence>
-          </Slider>
+          ) : null}
+          {movieInfo.movieId !== 0 ? (
+            <MovieDetail title={movieInfo.title} movieId={movieInfo.movieId} />
+          ) : null}
         </>
       )}
     </Wrapper>
