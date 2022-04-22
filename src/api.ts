@@ -31,7 +31,7 @@ export interface IGetMoviesResult {
   total_results: number;
 }
 
-export interface IGetMovieCast {
+export interface IGetCast {
   id: number;
   cast: Cast[];
   crew: Cast[];
@@ -52,6 +52,109 @@ export interface Cast {
   order?: number;
   department?: string;
   job?: string;
+}
+
+export interface IClickedTv {
+  adult: boolean;
+  backdrop_path: string;
+  episode_run_time: number[];
+  first_air_date: Date;
+  genres: Genre[];
+  homepage: string;
+  id: number;
+  in_production: boolean;
+  languages: string[];
+  last_air_date: Date;
+  name: string;
+  number_of_episodes: number;
+  number_of_seasons: number;
+  origin_country: string[];
+  original_language: string;
+  original_name: string;
+  overview: string;
+  popularity: number;
+  poster_path: string;
+  production_countries: ProductionCountry[];
+  spoken_languages: SpokenLanguage[];
+  status: string;
+  tagline: string;
+  type: string;
+  vote_average: number;
+  vote_count: number;
+}
+
+export interface IClickedMovie {
+  adult: boolean;
+  backdrop_path: string;
+  belongs_to_collection: null;
+  budget: number;
+  genres: Genre[];
+  homepage: string;
+  id: number;
+  imdb_id: string;
+  original_language: string;
+  original_title: string;
+  overview: string;
+  popularity: number;
+  poster_path: string;
+  production_companies: ProductionCompany[];
+  production_countries: ProductionCountry[];
+  release_date: Date;
+  revenue: number;
+  runtime: number;
+  spoken_languages: SpokenLanguage[];
+  status: string;
+  tagline: string;
+  title: string;
+  video: boolean;
+  vote_average: number;
+  vote_count: number;
+}
+
+export interface Genre {
+  id: number;
+  name: string;
+}
+
+export interface ProductionCompany {
+  id: number;
+  logo_path: null | string;
+  name: string;
+  origin_country: string;
+}
+
+export interface ProductionCountry {
+  iso_3166_1: string;
+  name: string;
+}
+
+export interface SpokenLanguage {
+  english_name: string;
+  iso_639_1: string;
+  name: string;
+}
+
+export interface ITvsResult {
+  page: number;
+  results: Result[];
+  total_pages: number;
+  total_results: number;
+}
+
+export interface Result {
+  backdrop_path: null | string;
+  first_air_date: Date;
+  genre_ids: number[];
+  id: number;
+  name: string;
+  origin_country: string[];
+  original_language: string;
+  original_name: string;
+  overview: string;
+  popularity: number;
+  poster_path: string;
+  vote_average: number;
+  vote_count: number;
 }
 
 export function getMovies() {
@@ -90,4 +193,39 @@ export function getSimilerMovieWithId(movieId: number) {
   return fetch(
     `${BASE_PATH}/movie/${movieId + ""}/similar?api_key=${API_KEY}`
   ).then((response) => response.json());
+}
+
+export function getOnTheAirTv() {
+  return fetch(`${BASE_PATH}/tv/on_the_air?api_key=${API_KEY}`).then(
+    (response) => response.json()
+  );
+}
+
+export function getTopRatedTv() {
+  return fetch(`${BASE_PATH}/tv/top_rated?api_key=${API_KEY}`).then(
+    (response) => response.json()
+  );
+}
+
+export function getTvRecommandationsWithId(tvId: number) {
+  return fetch(
+    `${BASE_PATH}/tv/${tvId + ""}/recommendations?api_key=${API_KEY}`
+  ).then((response) => response.json());
+}
+
+export function getTvSearchWithId(tvId: number) {
+  return fetch(`${BASE_PATH}/tv/${tvId + ""}?api_key=${API_KEY}`).then(
+    (response) => response.json()
+  );
+}
+export function getTvCreditWithId(tvId: number) {
+  return fetch(`${BASE_PATH}/tv/${tvId + ""}/credits?api_key=${API_KEY}`).then(
+    (response) => response.json()
+  );
+}
+
+export function getSimilerTvWithId(tvId: number) {
+  return fetch(`${BASE_PATH}/tv/${tvId + ""}/similar?api_key=${API_KEY}`).then(
+    (response) => response.json()
+  );
 }

@@ -3,19 +3,20 @@ import { useQuery } from "react-query";
 import { useRecoilValue } from "recoil";
 import styled from "styled-components";
 import {
-  getMovieCreditWithId,
-  getMovieSearchWithId,
-  getSimilerMovieWithId,
-  IClickedMovie,
+  getSimilerTvWithId,
+  getTvCreditWithId,
+  getTvSearchWithId,
+  IClickedTv,
   IGetCast,
   IGetMoviesResult,
+  ITvsResult,
 } from "../api";
-import { selectedMovie } from "../atom";
+import { selectedMovie, selectedTv } from "../atom";
 import { makeImagePath } from "../utils";
 
 //Styled Components
 
-const MovieDetailWrapper = styled.div``;
+const TvDetailWrapper = styled.div``;
 
 const DetailCover = styled.div`
   width: 100%;
@@ -53,7 +54,7 @@ const TimeInfo = styled.div`
   justify-content: flex-start;
   align-items: center;
 `;
-const MovieIcon = styled.svg`
+const TvIcon = styled.svg`
   width: 25px;
   height: 25px;
 `;
@@ -132,16 +133,16 @@ const Casts = styled(Genres)``;
 
 const Cast = styled(Genre)``;
 
-const SimilerMovieSection = styled.div`
+const SimilerTvSection = styled.div`
   padding: 10px;
   padding-top: 70px;
 `;
-const SimilerMovieTitle = styled.div`
+const SimilerTvTitle = styled.div`
   color: ${(props) => props.theme.white.lighter};
   font-size: 36px;
   position: relative;
 `;
-const SimilerMovies = styled.div`
+const SimilerTvs = styled.div`
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 10px;
@@ -184,54 +185,54 @@ interface IGenreProp {
   name: string;
 }
 
-function MovieDetail() {
-  const movie = useRecoilValue(selectedMovie);
-  const { data: clickedMovie, isLoading: clikedMovieLoading } =
-    useQuery<IClickedMovie>(["movie", movie.movieId + ""], () =>
-      getMovieSearchWithId(movie.movieId)
+function TvDetail() {
+  const tv = useRecoilValue(selectedTv);
+  const { data: clickedTv, isLoading: clikedMovieLoading } =
+    useQuery<IClickedTv>(["movie", tv.tvId + ""], () =>
+      getTvSearchWithId(tv.tvId)
     );
-  const { data: movieCredit, isLoading: movieCreditLoading } =
-    useQuery<IGetCast>(["movie", movie.movieId + " credit"], () =>
-      getMovieCreditWithId(movie.movieId)
-    );
+  const { data: tvCredit, isLoading: movieCreditLoading } = useQuery<IGetCast>(
+    ["movie", tv.tvId + " credit"],
+    () => getTvCreditWithId(tv.tvId)
+  );
   const { data: similerMovie, isLoading: similerMovieLoading } =
-    useQuery<IGetMoviesResult>(["movie", movie.movieId + " similer"], () =>
-      getSimilerMovieWithId(movie.movieId)
+    useQuery<ITvsResult>(["movie", tv.tvId + " similer"], () =>
+      getSimilerTvWithId(tv.tvId)
     );
+  console.log(similerMovie);
 
   return (
     <>
-      {clickedMovie && movieCredit && similerMovie ? (
-        <MovieDetailWrapper>
-          {clickedMovie && (
+      {clickedTv && tvCredit && similerMovie ? (
+        <TvDetailWrapper>
+          {clickedTv && (
             <>
               <DetailCover
                 style={{
                   backgroundImage: `linear-gradient(to top,black, transparent), url(${makeImagePath(
-                    clickedMovie.backdrop_path,
+                    clickedTv.backdrop_path,
                     "w500"
                   )})`,
                 }}
               />
-              <DetailTitle>{clickedMovie.title}</DetailTitle>
+              <DetailTitle>{clickedTv.name}</DetailTitle>
               <MovieInfoFirstSection>
                 <TimeInfo>
                   <DetailYear>
-                    {new Date(clickedMovie.release_date).getFullYear()}
+                    {new Date(clickedTv.first_air_date).getFullYear()}
                   </DetailYear>
-                  <MovieIcon
+                  <TvIcon
                     xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 512 512"
+                    viewBox="0 0 640 512"
                   >
                     <path
-                      d="M463.1 32h-416C21.49 32-.0001 53.49-.0001 80v352c0 26.51 21.49 48 47.1 48h416c26.51 0 48-21.49 48-48v-352C511.1 53.49 490.5 32 463.1 32zM111.1 408c0 4.418-3.582 8-8 8H55.1c-4.418 0-8-3.582-8-8v-48c0-4.418 3.582-8 8-8h47.1c4.418 0 8 3.582 8 8L111.1 408zM111.1 280c0 4.418-3.582 8-8 8H55.1c-4.418 0-8-3.582-8-8v-48c0-4.418 3.582-8 8-8h47.1c4.418 0 8 3.582 8 8V280zM111.1 152c0 4.418-3.582 8-8 8H55.1c-4.418 0-8-3.582-8-8v-48c0-4.418 3.582-8 8-8h47.1c4.418 0 8 3.582 8 8L111.1 152zM351.1 400c0 8.836-7.164 16-16 16H175.1c-8.836 0-16-7.164-16-16v-96c0-8.838 7.164-16 16-16h160c8.836 0 16 7.162 16 16V400zM351.1 208c0 8.836-7.164 16-16 16H175.1c-8.836 0-16-7.164-16-16v-96c0-8.838 7.164-16 16-16h160c8.836 0 16 7.162 16 16V208zM463.1 408c0 4.418-3.582 8-8 8h-47.1c-4.418 0-7.1-3.582-7.1-8l0-48c0-4.418 3.582-8 8-8h47.1c4.418 0 8 3.582 8 8V408zM463.1 280c0 4.418-3.582 8-8 8h-47.1c-4.418 0-8-3.582-8-8v-48c0-4.418 3.582-8 8-8h47.1c4.418 0 8 3.582 8 8V280zM463.1 152c0 4.418-3.582 8-8 8h-47.1c-4.418 0-8-3.582-8-8l0-48c0-4.418 3.582-8 7.1-8h47.1c4.418 0 8 3.582 8 8V152z"
+                      d="M512 448H127.1C110.3 448 96 462.3 96 479.1S110.3 512 127.1 512h384C529.7 512 544 497.7 544 480S529.7 448 512 448zM592 0h-544C21.5 0 0 21.5 0 48v320C0 394.5 21.5 416 48 416h544c26.5 0 48-21.5 48-48v-320C640 21.5 618.5 0 592 0zM576 352H64v-288h512V352z"
                       fill="#e74c3c"
                     />
-                  </MovieIcon>
+                  </TvIcon>
                   <RunTime>
-                    {`${Math.floor(clickedMovie.runtime / 60)} hour ${
-                      clickedMovie.runtime % 60
-                    } min`}
+                    {clickedTv.number_of_seasons} season
+                    {clickedTv.number_of_seasons > 1 ? "s" : ""}
                   </RunTime>
                 </TimeInfo>
                 <Score>
@@ -244,58 +245,58 @@ function MovieDetail() {
                       fill="#f1c40f"
                     />
                   </StarIcon>
-                  {clickedMovie.vote_average.toFixed(1)}
+                  {clickedTv.vote_average.toFixed(1)}
                 </Score>
               </MovieInfoFirstSection>
               <MovieInfoSecondSection>
                 <Genres>
                   Genres:
-                  {clickedMovie.genres.map(
-                    (item: IGenreProp, index: number) => (
-                      <Genre key={item.id}>
-                        {item.name}
-                        {index !== clickedMovie.genres.length - 1 ? ", " : null}
-                      </Genre>
-                    )
-                  )}
+                  {clickedTv.genres.map((item: IGenreProp, index: number) => (
+                    <Genre>
+                      {item.name}
+                      {index !== clickedTv.genres.length - 1 ? ", " : null}
+                    </Genre>
+                  ))}
                 </Genres>
-                <Casts>
-                  Cast:
-                  {movieCredit.cast
-                    .slice(0, 3)
-                    .map((item: IGenreProp, index: number) => (
-                      <Cast key={item.id}>
-                        {item.name}
-                        {index !== 2 ? ", " : null}
-                      </Cast>
-                    ))}
-                </Casts>
+                {tvCredit.cast.length !== 0 ? (
+                  <Casts>
+                    Cast:
+                    {tvCredit.cast
+                      .slice(0, 3)
+                      .map((item: IGenreProp, index: number) => (
+                        <Cast>
+                          {item.name}
+                          {index !== 2 ? ", " : null}
+                        </Cast>
+                      ))}
+                  </Casts>
+                ) : null}
               </MovieInfoSecondSection>
-              <DetailOverview>{clickedMovie.overview}</DetailOverview>
+              <DetailOverview>{clickedTv.overview}</DetailOverview>
 
-              <SimilerMovieSection>
-                <SimilerMovieTitle>Similer Movies</SimilerMovieTitle>
-                <SimilerMovies>
-                  {similerMovie.results.slice(0, 6).map((smovie) => (
+              <SimilerTvSection>
+                <SimilerTvTitle>Similer Shows</SimilerTvTitle>
+                <SimilerTvs>
+                  {similerMovie.results.slice(0, 6).map((sTv) => (
                     <Box
                       variants={BoxVariants}
-                      bgphoto={makeImagePath(smovie.backdrop_path, "w500")}
+                      bgphoto={makeImagePath(sTv.backdrop_path ?? "", "w500")}
                       whileHover="hover"
                       animate="normal"
-                      key={smovie.id}
+                      key={sTv.id}
                     >
                       <Info variants={infoVarients}>
-                        <h4>{smovie.title}</h4>
+                        <h4>{sTv.name}</h4>
                       </Info>
                     </Box>
                   ))}
-                </SimilerMovies>
-              </SimilerMovieSection>
+                </SimilerTvs>
+              </SimilerTvSection>
             </>
           )}
-        </MovieDetailWrapper>
+        </TvDetailWrapper>
       ) : null}
     </>
   );
 }
-export default MovieDetail;
+export default TvDetail;

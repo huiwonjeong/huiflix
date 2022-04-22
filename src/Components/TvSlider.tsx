@@ -3,8 +3,8 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSetRecoilState } from "recoil";
 import styled from "styled-components";
-import { IGetMoviesResult } from "../api";
-import { selectedMovie } from "../atom";
+import { ITvsResult } from "../api";
+import { selectedTv } from "../atom";
 import { makeImagePath } from "../utils";
 
 // Components
@@ -129,18 +129,21 @@ const rowVariants = {
 
 //interface
 interface ISliderProp {
-  data: IGetMoviesResult;
+  data: ITvsResult;
   title: string;
 }
 
 //etc..
 
-function MovieSlider({ data, title }: ISliderProp) {
+function TvSlider({ data, title }: ISliderProp) {
   const [leaving, setLeaving] = useState(false);
   const [index, setIndex] = useState(0);
   const [back, setBack] = useState(false);
   const [offset, setOffset] = useState(6);
-  const setMovie = useSetRecoilState(selectedMovie);
+  const setTv = useSetRecoilState(selectedTv);
+  const hasPosterResults = data?.results?.filter(
+    (tv) => tv.backdrop_path !== null
+  );
   const resizingHandler = () => {
     if (window.innerWidth <= 1024) {
       setOffset(4);
@@ -166,8 +169,8 @@ function MovieSlider({ data, title }: ISliderProp) {
       if (leaving) return;
       setBack(false);
       setLeaving(true);
-      const totalMovies = data.results.length - 1;
-      const maxIndex = Math.floor(totalMovies / offset) - 1;
+      const totalTvs = data.results.length - 1;
+      const maxIndex = Math.floor(totalTvs / offset) - 1;
       setIndex((prev) => (prev === maxIndex ? 0 : prev + 1));
     }
   };
@@ -176,14 +179,14 @@ function MovieSlider({ data, title }: ISliderProp) {
       if (leaving) return;
       setBack(true);
       setLeaving(true);
-      const totalMovies = data.results.length - 1;
-      const maxIndex = Math.floor(totalMovies / offset) - 1;
+      const totalTvs = data.results.length - 1;
+      const maxIndex = Math.floor(totalTvs / offset) - 1;
       setIndex((prev) => (prev === 0 ? maxIndex : prev - 1));
     }
   };
-  const onBoxClick = (movieId: number) => {
-    navigate(`/movies/${movieId}`);
-    setMovie({ title, movieId });
+  const onBoxClick = (tvId: number) => {
+    navigate(`/tv/${tvId}`);
+    setTv({ title, tvId });
   };
 
   return (
@@ -212,24 +215,25 @@ function MovieSlider({ data, title }: ISliderProp) {
           transition={{ type: "tween", duration: 1 }}
           key={title + index}
         >
-          {data?.results
-            .slice(1)
-            .slice(offset * index, offset * index + offset)
-            .map((movie) => (
-              <Box
-                layoutId={title + movie.id}
-                key={title + movie.id}
-                bgphoto={makeImagePath(movie.backdrop_path, "w500")}
-                variants={BoxVariants}
-                whileHover="hover"
-                onClick={() => onBoxClick(movie.id)}
-                initial="normal"
-              >
-                <Info variants={infoVarients}>
-                  <h4>{movie.title}</h4>
-                </Info>
-              </Box>
-            ))}
+          {hasPosterResults
+            ? hasPosterResults
+                .slice(offset * index, offset * index + offset)
+                .map((tv) => (
+                  <Box
+                    layoutId={title + tv.id}
+                    key={title + tv.id}
+                    bgphoto={makeImagePath(tv.backdrop_path ?? "", "w500")}
+                    variants={BoxVariants}
+                    whileHover="hover"
+                    onClick={() => onBoxClick(tv.id)}
+                    initial="normal"
+                  >
+                    <Info variants={infoVarients}>
+                      <h4>{tv.name}</h4>
+                    </Info>
+                  </Box>
+                ))
+            : null}
         </Row>
       </AnimatePresence>
       <RightBtn onClick={decreaseIndex}>
@@ -244,4 +248,4 @@ function MovieSlider({ data, title }: ISliderProp) {
   );
 }
 
-export default MovieSlider;
+export default TvSlider;

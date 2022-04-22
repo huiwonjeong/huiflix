@@ -140,6 +140,7 @@ function Home() {
                 <MovieDetailWindow
                   layoutId={movieInfo.title + movieInfo.movieId}
                   style={{ top: scrollY.get() + 100 }}
+                  key={movieInfo.movieId}
                 >
                   <MovieDetail />
                 </MovieDetailWindow>
