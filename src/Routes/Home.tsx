@@ -4,15 +4,16 @@ import {
   getMovies,
   getPopularMovies,
   getTopRatedMovies,
+  getUpComingMovies,
   IGetMoviesResult,
 } from "../api";
 import { makeImagePath } from "../utils";
 import { useMatch, useNavigate } from "react-router-dom";
 import MovieSlider from "../Components/MovieSlider";
 import MovieDetail from "../Components/MovieDetail";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useViewportScroll } from "framer-motion";
 import { useRecoilState, useRecoilValue } from "recoil";
-import { ISelectedMovieProp, selectedMovie } from "../atom";
+import { selectedMovie } from "../atom";
 
 const Wrapper = styled.div`
   background-color: black;
@@ -58,8 +59,28 @@ const SliderWrapper = styled.div`
   height: 400px;
 `;
 
+const MovieDetailWindow = styled(motion.div)`
+  position: absolute;
+  width: 40vw;
+  height: 80vh;
+  top: -80px;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  background-color: ${(props) => props.theme.black.lighter};
+  border-radius: 15px;
+  overflow: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  z-index: 5;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+`;
+
 function Home() {
   const movieDetailMatch = useMatch("/movies/:movieId");
+  const { scrollY } = useViewportScroll();
 
   const { data: nowPlaying, isLoading: nowPlayingLoading } =
     useQuery<IGetMoviesResult>(["movies", "nowPlaying"], getMovies);
@@ -67,6 +88,8 @@ function Home() {
     useQuery<IGetMoviesResult>(["movies", "popular"], getPopularMovies);
   const { data: topRated, isLoading: topRatedLoading } =
     useQuery<IGetMoviesResult>(["movies", "topRated"], getTopRatedMovies);
+  const { data: upcoming, isLoading: upcomingLoading } =
+    useQuery<IGetMoviesResult>(["movies", "upcoming"], getUpComingMovies);
   const [movieInfo, setMovie] = useRecoilState(selectedMovie);
 
   const navigate = useNavigate();
@@ -100,7 +123,12 @@ function Home() {
           <SliderWrapper>
             {popular ? <MovieSlider title="Popular" data={popular} /> : null}
           </SliderWrapper>
-          {movieDetailMatch ? (
+          <SliderWrapper>
+            {upcoming ? (
+              <MovieSlider title="Up Coming" data={upcoming} />
+            ) : null}
+          </SliderWrapper>
+          {movieDetailMatch && movieInfo.movieId !== 0 ? (
             <AnimatePresence>
               <Overlay
                 exit={{ opacity: 0 }}
@@ -108,10 +136,15 @@ function Home() {
                 transition={{ type: "tween", duration: 0.5 }}
                 onClick={onOverlayClick}
               />
+              {movieInfo.movieId !== 0 ? (
+                <MovieDetailWindow
+                  layoutId={movieInfo.title + movieInfo.movieId}
+                  style={{ top: scrollY.get() + 100 }}
+                >
+                  <MovieDetail />
+                </MovieDetailWindow>
+              ) : null}
             </AnimatePresence>
-          ) : null}
-          {movieInfo.movieId !== 0 ? (
-            <MovieDetail title={movieInfo.title} movieId={movieInfo.movieId} />
           ) : null}
         </>
       )}

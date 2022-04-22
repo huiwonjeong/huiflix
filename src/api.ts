@@ -31,6 +31,29 @@ export interface IGetMoviesResult {
   total_results: number;
 }
 
+export interface IGetMovieCast {
+  id: number;
+  cast: Cast[];
+  crew: Cast[];
+}
+
+export interface Cast {
+  adult: boolean;
+  gender: number;
+  id: number;
+  known_for_department: string;
+  name: string;
+  original_name: string;
+  popularity: number;
+  profile_path: null | string;
+  cast_id?: number;
+  character?: string;
+  credit_id: string;
+  order?: number;
+  department?: string;
+  job?: string;
+}
+
 export function getMovies() {
   return fetch(`${BASE_PATH}/movie/now_playing?api_key=${API_KEY}`).then(
     (response) => response.json()
@@ -46,9 +69,25 @@ export function getTopRatedMovies() {
     (response) => response.json()
   );
 }
+export function getUpComingMovies() {
+  return fetch(`${BASE_PATH}/movie/upcoming?api_key=${API_KEY}`).then(
+    (response) => response.json()
+  );
+}
 
 export function getMovieSearchWithId(movieId: number) {
   return fetch(`${BASE_PATH}/movie/${movieId + ""}?api_key=${API_KEY}`).then(
     (response) => response.json()
   );
+}
+export function getMovieCreditWithId(movieId: number) {
+  return fetch(
+    `${BASE_PATH}/movie/${movieId + ""}/credits?api_key=${API_KEY}`
+  ).then((response) => response.json());
+}
+
+export function getSimilerMovieWithId(movieId: number) {
+  return fetch(
+    `${BASE_PATH}/movie/${movieId + ""}/similar?api_key=${API_KEY}`
+  ).then((response) => response.json());
 }
