@@ -5,6 +5,7 @@ import { useSetRecoilState } from "recoil";
 import styled from "styled-components";
 import { ITvsResult } from "../api";
 import { selectedTv } from "../atom";
+import Tv from "../Routes/Tv";
 import { makeImagePath } from "../utils";
 
 // Components
@@ -215,14 +216,21 @@ function TvSlider({ data, title }: ISliderProp) {
           transition={{ type: "tween", duration: 1 }}
           key={title + index}
         >
-          {hasPosterResults
-            ? hasPosterResults
+          {data.results
+            ? data.results
                 .slice(offset * index, offset * index + offset)
                 .map((tv) => (
                   <Box
                     layoutId={title + tv.id}
                     key={title + tv.id}
-                    bgphoto={makeImagePath(tv.backdrop_path ?? "", "w500")}
+                    bgphoto={makeImagePath(
+                      tv.backdrop_path
+                        ? tv.backdrop_path
+                        : tv.poster_path
+                        ? tv.poster_path
+                        : "",
+                      "w500"
+                    )}
                     variants={BoxVariants}
                     whileHover="hover"
                     onClick={() => onBoxClick(tv.id)}

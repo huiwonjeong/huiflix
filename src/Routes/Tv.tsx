@@ -33,6 +33,7 @@ const Banner = styled.div<{ bgphoto: string }>`
   background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)),
     url(${(props) => props.bgphoto});
   background-size: cover;
+  background-position: center center;
 `;
 const Title = styled.h2`
   font-size: 58px;
@@ -121,7 +122,7 @@ function Tv() {
           </SliderWrapper>
           <SliderWrapper>
             {recommandations ? (
-              <TvSlider title="Top Rated" data={recommandations} />
+              <TvSlider title="Recommandations" data={recommandations} />
             ) : null}
           </SliderWrapper>
           {tvDetailMatch && tvInfo.tvId !== 0 ? (

@@ -229,3 +229,15 @@ export function getSimilerTvWithId(tvId: number) {
     (response) => response.json()
   );
 }
+
+export function getMovieSearchWithkeyWord(keyword: string) {
+  return fetch(
+    `${BASE_PATH}/search/movie?api_key=${API_KEY}&query=${keyword}`
+  ).then((response) => response.json());
+}
+
+export function getTvSearchWithkeyWord(keyword: string) {
+  return fetch(
+    `${BASE_PATH}/search/tv?api_key=${API_KEY}&query=${keyword}`
+  ).then((response) => response.json());
+}
