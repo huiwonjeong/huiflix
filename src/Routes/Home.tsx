@@ -79,7 +79,7 @@ const MovieDetailWindow = styled(motion.div)`
 `;
 
 function Home() {
-  const movieDetailMatch = useMatch("/movies/:movieId");
+  const movieDetailMatch = useMatch("/huiflix/movies/:movieId");
   const { scrollY } = useViewportScroll();
 
   const { data: nowPlaying, isLoading: nowPlayingLoading } =
@@ -94,7 +94,7 @@ function Home() {
 
   const navigate = useNavigate();
   const onOverlayClick = () => {
-    navigate("/");
+    navigate("/huiflix/");
     setMovie({ title: "", movieId: 0 });
   };
 

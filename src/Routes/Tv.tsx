@@ -79,7 +79,7 @@ const TvDetailWindow = styled(motion.div)`
 `;
 
 function Tv() {
-  const tvDetailMatch = useMatch("/tv/:tvId");
+  const tvDetailMatch = useMatch("/huiflix/tv/:tvId");
   const { scrollY } = useViewportScroll();
 
   const { data: onTheAir, isLoading: onTheAirLoading } = useQuery<ITvsResult>(
@@ -99,7 +99,7 @@ function Tv() {
 
   const navigate = useNavigate();
   const onOverlayClick = () => {
-    navigate("/tv");
+    navigate("/huiflix/tv");
     setTv({ title: "", tvId: 0 });
   };
   return (
