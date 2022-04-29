@@ -16,8 +16,8 @@ function App() {
             <Route path="/huiflix/tv/:id" element={<Tv />} />
           </Route>
           <Route path="/huiflix/search" element={<Search />}></Route>
-          <Route path="/huiflix/" element={<Home />}>
-            <Route path="/huiflixmovies/:id" element={<Home />} />
+          <Route path="/huiflix" element={<Home />}>
+            <Route path="/huiflix/movies/:id" element={<Home />} />
           </Route>
         </Routes>
         <Footer />
