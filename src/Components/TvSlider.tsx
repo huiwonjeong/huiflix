@@ -186,7 +186,7 @@ function TvSlider({ data, title }: ISliderProp) {
     }
   };
   const onBoxClick = (tvId: number) => {
-    navigate(`/tv/${tvId}`);
+    navigate(`/huiflix/tv/${tvId}`);
     setTv({ title, tvId });
   };
 

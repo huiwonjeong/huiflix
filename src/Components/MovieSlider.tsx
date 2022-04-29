@@ -182,7 +182,7 @@ function MovieSlider({ data, title }: ISliderProp) {
     }
   };
   const onBoxClick = (movieId: number) => {
-    navigate(`/movies/${movieId}`);
+    navigate(`/huiflix/movies/${movieId}`);
     setMovie({ title, movieId });
   };
 
